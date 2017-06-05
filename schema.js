@@ -91,7 +91,7 @@ var getProducts = {
     return Products;
   }
 }
-var addProduct = new graphql.inputObjectType({
+var addProduct = {
   type: productType,
   description: 'Add a new product',
   args: {
@@ -109,10 +109,7 @@ var addProduct = new graphql.inputObjectType({
     },
     policies: {
       name: 'Policies',
-      type: new graphql.GraphQLList(policyType),
-      resolve: function () {
-        return Policies;
-      }
+      type: new graphql.GraphQLNonNull(graphql.GraphQLString)
     }
   },
 resolve: (root,args) => {
@@ -120,11 +117,23 @@ resolve: (root,args) => {
     productName: "Disability cover",
     coverAmount: 20000,
     monthlyPremium: 1000,
-    policies: args.policies
-  })
-  Products.push(newProduct);
-}
+    policies: [{
+      policyId: 3421578989,
+      policyNumber: 1020,
+      contactNo: "0211024555",
+      startDate: "2017-06-02T09:40:15.090Z"
+    },
+    {policyId: 123456778,
+    policyNumber: 1030,
+    contactNo: "011100020000",
+    startDate: "20/05/2015"
+    }
+  ]
 })
+Products.push(newProduct);
+  }
+
+}
 
 
 
