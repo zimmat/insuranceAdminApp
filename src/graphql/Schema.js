@@ -8,7 +8,8 @@ import {
   GraphQLInt,
   GraphQLDate,
   GraphQLList,
-  GraphQLSchema
+  GraphQLSchema,
+  GraphQLInputObjectType
 } from 'graphql'
 import {productType} from './types'
 import {policyType} from './types'
@@ -56,7 +57,15 @@ const policyQuery = {
     return Policies
   }
 }
-
+const inputType = new GraphQLInputObjectType({
+  name: 'policyInput',
+  fields: {
+    policyId: {type: GraphQLID},
+    policyNumber: {type: GraphQLString},
+    contactNo: {type:GraphQLString},
+    startDate: {type: GraphQLString}
+  }
+})
 // addding new product
 const addProductMutation = {
   type: productType,
@@ -64,7 +73,8 @@ const addProductMutation = {
     productId:{type: GraphQLID},
     productName:{type:GraphQLString},
     coverAmount: {type:GraphQLFloat},
-    monthlyPremium:{type:GraphQLFloat}
+    monthlyPremium:{type:GraphQLFloat},
+    policies:{type: new GraphQLList(inputType)}
   },
   resolve: (_,args,session)=>{
     Products.push(args)
