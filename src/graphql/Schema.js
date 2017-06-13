@@ -40,23 +40,7 @@ contactNo: '011100020000',
 startDate: '20/05/2015'
 }]
 
-//products query:describes list of productType and contains resolver to fetch products
-const productQuery = {
-  type: new
-  GraphQLList(productType),
-  resolve: (_,args,context)=>{
-    return Products
-  }
-
-}
-// fetching policies
-const policyQuery = {
-  type: new
-  GraphQLList(policyType),
-  resolve: (_,args,context) =>{
-    return Policies
-  }
-}
+// policy input type
 const inputType = new GraphQLInputObjectType({
   name: 'policyInput',
   fields: {
@@ -76,11 +60,36 @@ const addProductMutation = {
     monthlyPremium:{type:GraphQLFloat},
     policies:{type: new GraphQLList(inputType)}
   },
-  resolve: (_,args,session)=>{
-    Products.push(args)
-    return args
+  resolve: (_, args, session) => {
+    const newProduct ={
+    productName: args.productName,
+    coverAmount: args.coverAmount,
+    monthlyPremium: args.monthlyPremium,
+    policies: args.policies
+  }
+    return mongo
+    .then(db => db.collection('products').insert(newProduct))
+    .then(()=> newProduct)
   }
 }
+//products query:describes list of productType and contains resolver to fetch products
+const productQuery = {
+  type: new
+  GraphQLList(productType),
+  resolve: (_,args,context)=>{
+    return mongo
+     .then(db => db.collection('products').find().toArray())
+  }
+
+  }
+  // fetching policies
+  const policyQuery = {
+    type: new
+    GraphQLList(policyType),
+    resolve: (_,args,context) =>{
+      return Policies
+    }
+  }
 // grouping all queries
 const QueryType = new GraphQLObjectType({
   name: "Query",
@@ -102,5 +111,4 @@ const schema = new GraphQLSchema({
   query: QueryType,
   mutation: MutationType
 })
-
 export default schema
