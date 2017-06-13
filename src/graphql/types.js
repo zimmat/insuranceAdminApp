@@ -29,7 +29,8 @@ export const policyType = new GraphQLObjectType({
     policyId: {type: GraphQLID},
     policyNumber: {type: GraphQLString},
     contactNo: {type:GraphQLString},
-    startDate: {type: GraphQLString}
+    startDate: {type: GraphQLString},
+    productId: {type:GraphQLID}
   }
 })
 
@@ -39,11 +40,6 @@ export const productType = new GraphQLObjectType({
     productId:{type: GraphQLID},
     productName:{type:GraphQLString},
     coverAmount: {type:GraphQLFloat},
-    monthlyPremium:{type:GraphQLFloat},
-    policies:{type:new GraphQLList(policyType),
-      resolve: (_,args,context) =>{
-        return Policies
-    }
+    monthlyPremium:{type:GraphQLFloat}
   }
-}
 })

@@ -57,14 +57,16 @@ const addPolicyMutation = {
     policyId: {type: GraphQLID},
     policyNumber: {type: GraphQLString},
     contactNo: {type:GraphQLString},
-    startDate: {type: GraphQLString}
+    startDate: {type: GraphQLString},
+    productId:{type:GraphQLID}
   },
-  resolve:(_,args,session) =>{
+  resolve:(_,args,policyId) =>{
   const newPolicy= {
     policyId: args.policyId,
     policyNumber: args.policyNumber,
     contactNo: args.contactNo,
-    startDate: args.startDate
+    startDate: args.startDate,
+    productId:args.productId
   }
   return mongo
   .then(db => db.collection('policies').insert(newPolicy))
@@ -78,8 +80,8 @@ const addProductMutation = {
     productId:{type: GraphQLID},
     productName:{type:GraphQLString},
     coverAmount: {type:GraphQLFloat},
-    monthlyPremium:{type:GraphQLFloat},
-    policies:{type: new GraphQLList(inputType)}
+    monthlyPremium:{type:GraphQLFloat}
+    // policies:{type: new GraphQLList(inputType)}
   },
   resolve: (_, args, session) => {
     const newProduct ={
