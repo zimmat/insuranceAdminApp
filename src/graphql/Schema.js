@@ -48,8 +48,29 @@ const inputType = new GraphQLInputObjectType({
     policyNumber: {type: GraphQLString},
     contactNo: {type:GraphQLString},
     startDate: {type: GraphQLString}
-  }
+  },
+
 })
+const addPolicyMutation = {
+  type: policyType,
+  args:{
+    policyId: {type: GraphQLID},
+    policyNumber: {type: GraphQLString},
+    contactNo: {type:GraphQLString},
+    startDate: {type: GraphQLString}
+  },
+  resolve:(_,args,session) =>{
+  const newPolicy= {
+    policyId: args.policyId,
+    policyNumber: args.policyNumber,
+    contactNo: args.contactNo,
+    startDate: args.startDate
+  }
+  return mongo
+  .then(db => db.collection('policies').insert(newPolicy))
+  .then(()=> newPolicy)
+}
+}
 // addding new product
 const addProductMutation = {
   type: productType,
@@ -71,6 +92,7 @@ const addProductMutation = {
     .then(db => db.collection('products').insert(newProduct))
     .then(()=> newProduct)
   }
+
 }
 //products query:describes list of productType and contains resolver to fetch products
 const productQuery = {
@@ -87,7 +109,8 @@ const productQuery = {
     type: new
     GraphQLList(policyType),
     resolve: (_,args,context) =>{
-      return Policies
+      return mongo
+      .then(db => db.collection('policies').find().toArray())
     }
   }
 // grouping all queries
@@ -104,7 +127,8 @@ const MutationType = new GraphQLObjectType({
   name: "mutation",
   description: "contains all mutations",
   fields: {
-    addProduct: addProductMutation
+    addProduct: addProductMutation,
+    addPolicy: addPolicyMutation
   }
 })
 const schema = new GraphQLSchema({
