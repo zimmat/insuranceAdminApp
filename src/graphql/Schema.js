@@ -6,48 +6,28 @@ import {
   GraphQLNonNull,
   GraphQLFloat,
   GraphQLInt,
-  GraphQLDate,
   GraphQLList,
   GraphQLSchema,
   GraphQLInputObjectType
-} from 'graphql'
+} from 'graphql';
+import {ObjectId} from 'mongodb'
+import {
+  GraphQLDate
+} from 'graphql-iso-date';
+
 import {productType} from './types'
 import {policyType} from './types'
 import { mongo } from '../db'
 
-//Dummy data
-const Products = [{
-  productId: 124545897,
-  productName: 'life insurance',
-  coverAmount: 50.000,
-  monthlyPremium: 215.00
-},
-{
-  productId: 124545897,
-  productName: 'car insurance',
-  coverAmount: 50.000,
-  monthlyPremium: 215.00
-}]
-const Policies = [{
-  policyId: 3421578989,
-  policyNumber: 1020,
-  contactNo: '0211024555',
-  startDate: '2017-06-02T09:40:15.090'
-},
-{policyId: 123456778,
-policyNumber: 1030,
-contactNo: '011100020000',
-startDate: '20/05/2015'
-}]
 
 // policy input type
-const inputType = new GraphQLInputObjectType({
+const policyInputType = new GraphQLInputObjectType({
   name: 'policyInput',
   fields: {
     policyId: {type: GraphQLID},
     policyNumber: {type: GraphQLString},
     contactNo: {type:GraphQLString},
-    startDate: {type: GraphQLString}
+    startDate: {type: GraphQLDate}
   },
 
 })
@@ -57,7 +37,7 @@ const addPolicyMutation = {
     policyId: {type: GraphQLID},
     policyNumber: {type: GraphQLString},
     contactNo: {type:GraphQLString},
-    startDate: {type: GraphQLString},
+    startDate: {type: GraphQLDate},
     productId:{type:GraphQLID}
   },
   resolve:(_,args,policyId) =>{
@@ -72,6 +52,29 @@ const addPolicyMutation = {
   .then(db => db.collection('policies').insert(newPolicy))
   .then(()=> newPolicy)
 }
+}
+const updatePolicyMutation = {
+  type: policyType,
+  args: {
+    policyId: {type: GraphQLID},
+    policyNumber: {type: GraphQLString},
+    contactNo: {type: GraphQLString},
+    startDate: {type: GraphQLDate},
+    productId: {type: GraphQLID}
+  },
+  resolve: (_, args) => {
+    // console.log(args);
+    return mongo
+      .then(db => db.collection('policies').update({
+        _id: ObjectId(args.policyId)
+      }, {
+        $set: {
+          contactNo: args.contactNo,
+          startDate:args.startDate
+        }
+      }))
+      .then(() => args)
+  }
 }
 // addding new product
 const addProductMutation = {
@@ -96,6 +99,7 @@ const addProductMutation = {
   }
 
 }
+
 //products query:describes list of productType and contains resolver to fetch products
 const productQuery = {
   type: new
@@ -130,7 +134,8 @@ const MutationType = new GraphQLObjectType({
   description: "contains all mutations",
   fields: {
     addProduct: addProductMutation,
-    addPolicy: addPolicyMutation
+    addPolicy: addPolicyMutation,
+    updatePolicy:updatePolicyMutation
   }
 })
 const schema = new GraphQLSchema({
