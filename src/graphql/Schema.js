@@ -63,7 +63,6 @@ const updatePolicyMutation = {
     productId: {type: GraphQLID}
   },
   resolve: (_, args) => {
-    // console.log(args);
     return mongo
       .then(db => db.collection('policies').update({
         _id: ObjectId(args.policyId)
@@ -80,7 +79,6 @@ const updatePolicyMutation = {
 const addProductMutation = {
   type: productType,
   args: {
-    productId:{type: GraphQLID},
     productName:{type:GraphQLString},
     coverAmount: {type:GraphQLFloat},
     monthlyPremium:{type:GraphQLFloat}
