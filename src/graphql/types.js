@@ -40,6 +40,11 @@ export const productType = new GraphQLObjectType({
     productId:{type: GraphQLID},
     productName:{type:GraphQLString},
     coverAmount: {type:GraphQLFloat},
-    monthlyPremium:{type:GraphQLFloat}
+    monthlyPremium:{type:GraphQLFloat},
+    policies:{type:new GraphQLList(policyType),
+      resolve: (_,args,context) =>{
+        return Policies
+    }
   }
+}
 })
