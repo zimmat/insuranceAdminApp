@@ -24,17 +24,16 @@ import { mongo } from '../db'
 const policyInputType = new GraphQLInputObjectType({
   name: 'policyInput',
   fields: {
-    policyId: {type: GraphQLID},
     policyNumber: {type: GraphQLString},
     contactNo: {type:GraphQLString},
-    startDate: {type: GraphQLDate}
+    startDate: {type: GraphQLDate},
+    productId:{type:GraphQLID}
   },
 
 })
 const addPolicyMutation = {
   type: policyType,
   args:{
-    policyId: {type: GraphQLID},
     policyNumber: {type: GraphQLString},
     contactNo: {type:GraphQLString},
     startDate: {type: GraphQLDate},
@@ -42,7 +41,6 @@ const addPolicyMutation = {
   },
   resolve:(_,args,policyId) =>{
   const newPolicy= {
-    policyId: args.policyId,
     policyNumber: args.policyNumber,
     contactNo: args.contactNo,
     startDate: args.startDate,
@@ -57,7 +55,7 @@ const addPolicyMutation = {
 const updatePolicyMutation = {
   type: policyType,
   args: {
-    policyId: {type: GraphQLID},
+    _id: {type: GraphQLID},
     policyNumber: {type: GraphQLString},
     contactNo: {type: GraphQLString},
     startDate: {type: GraphQLDate},
@@ -66,12 +64,11 @@ const updatePolicyMutation = {
   resolve: (_, args) => {
 
     return mongo
-      .then(db => db.collection('policies').findAndModify({_id: ObjectId(args.policyId)},
-      { $set: {contactNo: args.contactNo,startDate:args.startDat}},
+      .then(db => db.collection('policies').findAndModify({_id: ObjectId(args._id)}, [],
+      { $set: {contactNo: args.contactNo,startDate:args.startDate}},
        {new: true}
      ))
-      .then(result =>  { console.log(result);
-      })
+      .then(result =>  result.value)
       .catch(err => err)
 
 }

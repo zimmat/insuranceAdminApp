@@ -20,7 +20,7 @@ import {
 export const policyType = new GraphQLObjectType({
   name: "Policy",
   fields: {
-    policyId:{type:GraphQLID},
+    _id:{type:GraphQLID},
     policyNumber: {type: GraphQLString},
     contactNo: {type: GraphQLString},
     startDate: {type: GraphQLDate},
@@ -31,6 +31,7 @@ export const policyType = new GraphQLObjectType({
 export const productType = new GraphQLObjectType({
   name: "Product",
   fields: {
+    _id:{type: GraphQLID},
     productName: {type: GraphQLString},
     coverAmount: {type: GraphQLFloat},
     monthlyPremium: {type: GraphQLFloat}
