@@ -20,6 +20,7 @@ import {
 export const policyType = new GraphQLObjectType({
   name: "Policy",
   fields: {
+    policyId:{type:GraphQLID},
     policyNumber: {type: GraphQLString},
     contactNo: {type: GraphQLString},
     startDate: {type: GraphQLDate},

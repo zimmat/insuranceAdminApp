@@ -53,6 +53,7 @@ const addPolicyMutation = {
   .then(()=> newPolicy)
 }
 }
+
 const updatePolicyMutation = {
   type: policyType,
   args: {
@@ -63,18 +64,20 @@ const updatePolicyMutation = {
     productId: {type: GraphQLID}
   },
   resolve: (_, args) => {
+
     return mongo
-      .then(db => db.collection('policies').update({
-        _id: ObjectId(args.policyId)
-      }, {
-        $set: {
-          contactNo: args.contactNo,
-          startDate:args.startDate
-        }
-      }))
-      .then(() => args)
-  }
+      .then(db => db.collection('policies').findAndModify({_id: ObjectId(args.policyId)},
+      { $set: {contactNo: args.contactNo,startDate:args.startDat}},
+       {new: true}
+     ))
+      .then(result =>  { console.log(result);
+      })
+      .catch(err => err)
+
 }
+}
+
+
 // addding new product
 const addProductMutation = {
   type: productType,
@@ -82,7 +85,6 @@ const addProductMutation = {
     productName:{type:GraphQLString},
     coverAmount: {type:GraphQLFloat},
     monthlyPremium:{type:GraphQLFloat}
-    // policies:{type: new GraphQLList(inputType)}
   },
   resolve: (_, args, session) => {
     const newProduct ={
