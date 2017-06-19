@@ -53,17 +53,16 @@ const updatePolicyMutation = {
   type: policyType,
   args: {
     _id: {type: GraphQLID},
-    contactNo: {type: GraphQLString},
-    startDate: {type: GraphQLDate},
-    productId: {type: GraphQLID}
+    input:{type: policyInputType}
   },
   resolve: (_, args) => {
 
     return mongo
       .then(db => db.collection('policies').findAndModify({_id: ObjectId(args._id)}, [],
-      { $set: {contactNo: args.contactNo,startDate:args.startDate}},
+      { $set: args.input},
        {new: true}
      ))
+
       .then(result =>  result.value)
       .catch(err => err)
 
