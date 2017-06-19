@@ -24,24 +24,20 @@ import { mongo } from '../db'
 const policyInputType = new GraphQLInputObjectType({
   name: 'policyInput',
   fields: {
-    policyNumber: {type: GraphQLString},
     contactNo: {type:GraphQLString},
-    startDate: {type: GraphQLDate},
-    productId:{type:GraphQLID}
+    startDate: {type: GraphQLDate}
   },
 
 })
 const addPolicyMutation = {
   type: policyType,
   args:{
-    policyNumber: {type: GraphQLString},
     contactNo: {type:GraphQLString},
     startDate: {type: GraphQLDate},
     productId:{type:GraphQLID}
   },
   resolve:(_,args,policyId) =>{
   const newPolicy= {
-    policyNumber: args.policyNumber,
     contactNo: args.contactNo,
     startDate: args.startDate,
     productId:args.productId
@@ -52,11 +48,11 @@ const addPolicyMutation = {
 }
 }
 
+
 const updatePolicyMutation = {
   type: policyType,
   args: {
     _id: {type: GraphQLID},
-    policyNumber: {type: GraphQLString},
     contactNo: {type: GraphQLString},
     startDate: {type: GraphQLDate},
     productId: {type: GraphQLID}
@@ -75,6 +71,7 @@ const updatePolicyMutation = {
 }
 
 
+
 // addding new product
 const addProductMutation = {
   type: productType,
@@ -88,7 +85,7 @@ const addProductMutation = {
     productName: args.productName,
     coverAmount: args.coverAmount,
     monthlyPremium: args.monthlyPremium,
-    policies: args.policies
+    policies:{type: args.policies}
   }
     return mongo
     .then(db => db.collection('products').insert(newProduct))
