@@ -17,7 +17,9 @@
     "express-session": "^1.15.3",
     "graphql": "^0.10.1",
     "graphql-iso-date": "^3.2.0",
-    "mongodb": "^2.2.28"
+    "mongo-incremental-id-generator": "^0.1.0",
+    "mongodb": "^2.2.28",
+    "mongodb-autoincrement": "^1.0.1"
   },
   "devDependencies": {
     "babel-cli": "6.16.0",

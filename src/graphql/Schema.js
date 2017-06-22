@@ -11,11 +11,27 @@ import {
   GraphQLInputObjectType
 } from 'graphql';
 
+import {autoIncrement} from 'mongodb-autoincrement'
+
+import {idGenerator, connectionString} from'mongo-incremental-id-generator'
+
 import {ObjectId} from 'mongodb'
 import {GraphQLDate} from 'graphql-iso-date';
 import {productType} from './types'
 import {policyType} from './types'
 import {mongo} from '../db'
+
+// getNextSequence
+function getNextProductId(product){
+return mongo
+.then(nextProduct => db.collection('counters').findAndModify(
+  {_id:product},[],{ $inc: { seq: 1 }},{new: true}
+))
+
+return nextProduct.seq
+}
+
+
 
 
 // policy input type
@@ -74,24 +90,31 @@ const updatePolicyMutation = {
 // addding new product
 const addProductMutation = {
   type: productType,
-  args: {productName: {type: GraphQLString},
+  args: {
+    _id:{type:GraphQLID},
+    productName: {type: GraphQLString},
     coverAmount: {type: GraphQLFloat},
     monthlyPremium: {type: GraphQLFloat},
 
   },
   resolve: (_, args, session) => {
     const newProduct = {
+      _id: getNextProductId("productId"),
       productName: args.productName,
       coverAmount: args.coverAmount,
       monthlyPremium: args.monthlyPremium,
       policies: args.policies
     }
+  console.log("ID",newProduct);
     return mongo
       .then(db => db.collection('products').insert(newProduct))
       .then(() => newProduct)
+
+
   }
 
 }
+
 
 //products query:describes list of productType and contains resolver to fetch products
 const productQuery = {

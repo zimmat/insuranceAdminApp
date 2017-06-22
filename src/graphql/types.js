@@ -35,7 +35,6 @@ export const productType = new GraphQLObjectType({
     policies:{
       type: new GraphQLList(policyType),
       resolve:(_) =>{
-        console.log(_._id);
         return mongo
         .then(db=>db.collection('policies').find({productId:(_._id).toString()}).toArray())
 
