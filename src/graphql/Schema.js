@@ -24,11 +24,12 @@ import {mongo} from '../db'
 // getNextSequence
 function getNextProductId(product){
 return mongo
-.then(nextProduct => db.collection('counters').findAndModify(
-  {_id:product},[],{ $inc: { seq: 1 }},{new: true}
-))
-
-return nextProduct.seq
+.then(db => db.collection('counters').findAndModify(
+  {_id:product},[],
+  { $inc: { seq: 1 }},
+  {new: true})
+  .then(result => result.value)
+)
 }
 
 
@@ -95,22 +96,19 @@ const addProductMutation = {
     productName: {type: GraphQLString},
     coverAmount: {type: GraphQLFloat},
     monthlyPremium: {type: GraphQLFloat},
-
   },
   resolve: (_, args, session) => {
-    const newProduct = {
-      _id: getNextProductId("productId"),
-      productName: args.productName,
-      coverAmount: args.coverAmount,
-      monthlyPremium: args.monthlyPremium,
-      policies: args.policies
-    }
-  console.log("ID",newProduct);
-    return mongo
-      .then(db => db.collection('products').insert(newProduct))
-      .then(() => newProduct)
-
-
+   getNextProductId("productId")
+   .then(res =>{
+     const newProduct = {
+       _id:res.seq,
+       productName: args.productName,
+       coverAmount: args.coverAmount,
+       monthlyPremium: args.monthlyPremium,
+       policies: args.policies
+     }
+    return mongo.then(db => db.collection('products').insert(newProduct))
+   })
   }
 
 }
