@@ -11,9 +11,6 @@ import {
   GraphQLInputObjectType
 } from 'graphql';
 
-import {autoIncrement} from 'mongodb-autoincrement'
-
-import {idGenerator, connectionString} from'mongo-incremental-id-generator'
 
 import {ObjectId} from 'mongodb'
 import {GraphQLDate} from 'graphql-iso-date';
@@ -32,7 +29,15 @@ return mongo
 )
 }
 
-
+function getNextPolicyId(policy){
+return mongo
+.then(db => db.collection('policycounter').findAndModify(
+  {_id:policy},[],
+  { $inc: { seq: 1 }},
+  {new: true})
+  .then(result => result.value)
+)
+}
 
 
 // policy input type
