@@ -19,26 +19,15 @@ import {policyType} from './types'
 import {mongo} from '../db'
 
 // getNextSequence
-function getNextProductId(product){
+function getNextSequence(input,collection){
 return mongo
-.then(db => db.collection('counters').findAndModify(
-  {_id:product},[],
+.then(db => db.collection(collection).findAndModify(
+  {_id:input},[],
   { $inc: { seq: 1 }},
   {new: true})
   .then(result => result.value)
 )
 }
-
-function getNextPolicyId(policy){
-return mongo
-.then(db => db.collection('policycounter').findAndModify(
-  {_id:policy},[],
-  { $inc: { seq: 1 }},
-  {new: true})
-  .then(result => result.value)
-)
-}
-
 
 // policy input type
 const policyInputType = new GraphQLInputObjectType({
@@ -56,23 +45,27 @@ const addPolicyMutation = {
     productId: {type: GraphQLID}
 },
   resolve: (_, args, policyId) => {
-    const newPolicy = {
-      contactNo: args.contactNo,
-      startDate: args.startDate,
-      productId: args.productId
-    }
-    return mongo
-      .then(db => db.collection('products').findOne({_id: ObjectId(args.productId)}))
-      .then((result) =>{
-        if(result){
-          return mongo
-        .then(db => db.collection('policies').insert(newPolicy))
-          .then(() => newPolicy)
-      }else {
-        throw new Error("product not found")
+    getNextSequence("policyId",'policycounter')
+    .then(policy =>{
+      const newPolicy = {
+        _id: policy.seq,
+        contactNo: args.contactNo,
+        startDate: args.startDate,
+        productId: args.productId
       }
+      return mongo
+        .then(db => db.collection('products').findOne({_id: (Number(args.productId))}))
+        .then(result => {
+          if(result){
+            return mongo.then(db => db.collection('policies').insert(newPolicy))
+        }else {
+          throw new Error("product not found")
+        }
 
-})
+  })
+    })
+
+
      }
   }
 
@@ -103,7 +96,7 @@ const addProductMutation = {
     monthlyPremium: {type: GraphQLFloat},
   },
   resolve: (_, args, session) => {
-   getNextProductId("productId")
+   getNextSequence("productId",'counters')
    .then(res =>{
      const newProduct = {
        _id:res.seq,
